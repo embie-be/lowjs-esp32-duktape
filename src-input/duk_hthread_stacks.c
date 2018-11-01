@@ -10,7 +10,9 @@
 /* Unwind the topmost catcher of the current activation (caller must check that
  * both exist) without side effects.
  */
-DUK_INTERNAL void duk_hthread_catcher_unwind_norz(duk_hthread *thr, duk_activation *act) {
+DUK_INTERNAL void duk_hthread_catcher_unwind_norz(duk_hthread *thr,
+                                                  duk_activation *act)
+{
 	duk_catcher *cat;
 
 	DUK_ASSERT(thr != NULL);
@@ -19,14 +21,20 @@ DUK_INTERNAL void duk_hthread_catcher_unwind_norz(duk_hthread *thr, duk_activati
 	cat = act->cat;
 	DUK_ASSERT(cat != NULL);
 
-	DUK_DDD(DUK_DDDPRINT("unwinding catch stack entry %p (lexenv check is done)", (void *) cat));
+    DUK_DDD(DUK_DDDPRINT(
+        "unwinding catch stack entry %p (lexenv check is done)", (void *)cat));
 
-	if (DUK_CAT_HAS_LEXENV_ACTIVE(cat)) {
+    if(DUK_CAT_HAS_LEXENV_ACTIVE(cat))
+    {
 		duk_hobject *env;
 
-		env = act->lex_env;             /* current lex_env of the activation (created for catcher) */
-		DUK_ASSERT(env != NULL);        /* must be, since env was created when catcher was created */
-		act->lex_env = DUK_HOBJECT_GET_PROTOTYPE(thr->heap, env);  /* prototype is lex_env before catcher created */
+        env = act->lex_env; /* current lex_env of the activation (created for
+                               catcher) */
+        DUK_ASSERT(
+            env !=
+            NULL); /* must be, since env was created when catcher was created */
+        act->lex_env = DUK_HOBJECT_GET_PROTOTYPE(
+            thr->heap, env); /* prototype is lex_env before catcher created */
 		DUK_HOBJECT_INCREF(thr, act->lex_env);
 		DUK_HOBJECT_DECREF_NORZ(thr, env);
 
@@ -40,7 +48,9 @@ DUK_INTERNAL void duk_hthread_catcher_unwind_norz(duk_hthread *thr, duk_activati
 }
 
 /* Same as above, but caller is certain no catcher-related lexenv may exist. */
-DUK_INTERNAL void duk_hthread_catcher_unwind_nolexenv_norz(duk_hthread *thr, duk_activation *act) {
+DUK_INTERNAL void duk_hthread_catcher_unwind_nolexenv_norz(duk_hthread *thr,
+                                                           duk_activation *act)
+{
 	duk_catcher *cat;
 
 	DUK_ASSERT(thr != NULL);
@@ -49,7 +59,9 @@ DUK_INTERNAL void duk_hthread_catcher_unwind_nolexenv_norz(duk_hthread *thr, duk
 	cat = act->cat;
 	DUK_ASSERT(cat != NULL);
 
-	DUK_DDD(DUK_DDDPRINT("unwinding catch stack entry %p (lexenv check is not done)", (void *) cat));
+    DUK_DDD(DUK_DDDPRINT(
+        "unwinding catch stack entry %p (lexenv check is not done)",
+        (void *)cat));
 
 	DUK_ASSERT(!DUK_CAT_HAS_LEXENV_ACTIVE(cat));
 
@@ -61,7 +73,8 @@ DUK_LOCAL
 #if defined(DUK_USE_CACHE_CATCHER)
 DUK_NOINLINE
 #endif
-duk_catcher *duk__hthread_catcher_alloc_slow(duk_hthread *thr) {
+duk_catcher *duk__hthread_catcher_alloc_slow(duk_hthread *thr)
+{
 	duk_catcher *cat;
 
 	cat = (duk_catcher *) DUK_ALLOC_CHECKED(thr, sizeof(duk_catcher));
@@ -70,13 +83,15 @@ duk_catcher *duk__hthread_catcher_alloc_slow(duk_hthread *thr) {
 }
 
 #if defined(DUK_USE_CACHE_CATCHER)
-DUK_INTERNAL DUK_INLINE duk_catcher *duk_hthread_catcher_alloc(duk_hthread *thr) {
+DUK_INTERNAL DUK_INLINE duk_catcher *duk_hthread_catcher_alloc(duk_hthread *thr)
+{
 	duk_catcher *cat;
 
 	DUK_ASSERT(thr != NULL);
 
 	cat = thr->heap->catcher_free;
-	if (DUK_LIKELY(cat != NULL)) {
+    if(DUK_LIKELY(cat != NULL))
+    {
 		thr->heap->catcher_free = cat->parent;
 		return cat;
 	}
@@ -84,12 +99,14 @@ DUK_INTERNAL DUK_INLINE duk_catcher *duk_hthread_catcher_alloc(duk_hthread *thr)
 	return duk__hthread_catcher_alloc_slow(thr);
 }
 #else  /* DUK_USE_CACHE_CATCHER */
-DUK_INTERNAL duk_catcher *duk_hthread_catcher_alloc(duk_hthread *thr) {
+DUK_INTERNAL duk_catcher *duk_hthread_catcher_alloc(duk_hthread *thr)
+{
 	return duk__hthread_catcher_alloc_slow(thr);
 }
 #endif  /* DUK_USE_CACHE_CATCHER */
 
-DUK_INTERNAL void duk_hthread_catcher_free(duk_hthread *thr, duk_catcher *cat) {
+DUK_INTERNAL void duk_hthread_catcher_free(duk_hthread *thr, duk_catcher *cat)
+{
 	DUK_ASSERT(thr != NULL);
 	DUK_ASSERT(cat != NULL);
 
@@ -106,7 +123,8 @@ DUK_LOCAL
 #if defined(DUK_USE_CACHE_ACTIVATION)
 DUK_NOINLINE
 #endif
-duk_activation *duk__hthread_activation_alloc_slow(duk_hthread *thr) {
+duk_activation *duk__hthread_activation_alloc_slow(duk_hthread *thr)
+{
 	duk_activation *act;
 
 	act = (duk_activation *) DUK_ALLOC_CHECKED(thr, sizeof(duk_activation));
@@ -115,13 +133,16 @@ duk_activation *duk__hthread_activation_alloc_slow(duk_hthread *thr) {
 }
 
 #if defined(DUK_USE_CACHE_ACTIVATION)
-DUK_INTERNAL DUK_INLINE duk_activation *duk_hthread_activation_alloc(duk_hthread *thr) {
+DUK_INTERNAL DUK_INLINE duk_activation *
+duk_hthread_activation_alloc(duk_hthread *thr)
+{
 	duk_activation *act;
 
 	DUK_ASSERT(thr != NULL);
 
 	act = thr->heap->activation_free;
-	if (DUK_LIKELY(act != NULL)) {
+    if(DUK_LIKELY(act != NULL))
+    {
 		thr->heap->activation_free = act->parent;
 		return act;
 	}
@@ -129,13 +150,16 @@ DUK_INTERNAL DUK_INLINE duk_activation *duk_hthread_activation_alloc(duk_hthread
 	return duk__hthread_activation_alloc_slow(thr);
 }
 #else  /* DUK_USE_CACHE_ACTIVATION */
-DUK_INTERNAL duk_activation *duk_hthread_activation_alloc(duk_hthread *thr) {
+DUK_INTERNAL duk_activation *duk_hthread_activation_alloc(duk_hthread *thr)
+{
 	return duk__hthread_activation_alloc_slow(thr);
 }
 #endif  /* DUK_USE_CACHE_ACTIVATION */
 
 
-DUK_INTERNAL void duk_hthread_activation_free(duk_hthread *thr, duk_activation *act) {
+DUK_INTERNAL void duk_hthread_activation_free(duk_hthread *thr,
+                                              duk_activation *act)
+{
 	DUK_ASSERT(thr != NULL);
 	DUK_ASSERT(act != NULL);
 
@@ -151,7 +175,8 @@ DUK_INTERNAL void duk_hthread_activation_free(duk_hthread *thr, duk_activation *
 /* Internal helper: process the unwind for the topmost activation of a thread,
  * but leave the duk_activation in place for possible tailcall reuse.
  */
-DUK_LOCAL void duk__activation_unwind_nofree_norz(duk_hthread *thr) {
+DUK_LOCAL void duk__activation_unwind_nofree_norz(duk_hthread *thr)
+{
 #if defined(DUK_USE_DEBUGGER_SUPPORT)
 	duk_heap *heap;
 #endif
@@ -176,34 +201,44 @@ DUK_LOCAL void duk__activation_unwind_nofree_norz(duk_hthread *thr) {
 	 */
 
 	func = DUK_ACT_GET_FUNC(act);
-	if (func != NULL && !DUK_HOBJECT_HAS_STRICT(func)) {
+    if(func != NULL && !DUK_HOBJECT_HAS_STRICT(func))
+    {
 		duk_tval *tv_caller;
 		duk_tval tv_tmp;
 		duk_hobject *h_tmp;
 
-		tv_caller = duk_hobject_find_existing_entry_tval_ptr(thr->heap, func, DUK_HTHREAD_STRING_CALLER(thr));
+        tv_caller = duk_hobject_find_existing_entry_tval_ptr(
+            thr->heap, func, DUK_HTHREAD_STRING_CALLER(thr));
 
 		/* The act->prev_caller should only be set if the entry for 'caller'
 		 * exists (as it is only set in that case, and the property is not
 		 * configurable), but handle all the cases anyway.
 		 */
 
-		if (tv_caller) {
+        if(tv_caller)
+        {
 			DUK_TVAL_SET_TVAL(&tv_tmp, tv_caller);
-			if (act->prev_caller) {
-				/* Just transfer the refcount from act->prev_caller to tv_caller,
-				 * so no need for a refcount update.  This is the expected case.
+            if(act->prev_caller)
+            {
+                /* Just transfer the refcount from act->prev_caller to
+                 * tv_caller, so no need for a refcount update.  This is the
+                 * expected case.
 				 */
 				DUK_TVAL_SET_OBJECT(tv_caller, act->prev_caller);
 				act->prev_caller = NULL;
-			} else {
+            }
+            else
+            {
 				DUK_TVAL_SET_NULL(tv_caller);   /* no incref needed */
 				DUK_ASSERT(act->prev_caller == NULL);
 			}
 			DUK_TVAL_DECREF_NORZ(thr, &tv_tmp);
-		} else {
+        }
+        else
+        {
 			h_tmp = act->prev_caller;
-			if (h_tmp) {
+            if(h_tmp)
+            {
 				act->prev_caller = NULL;
 				DUK_HOBJECT_DECREF_NORZ(thr, h_tmp);
 			}
@@ -220,11 +255,26 @@ DUK_LOCAL void duk__activation_unwind_nofree_norz(duk_hthread *thr) {
 
 #if defined(DUK_USE_DEBUGGER_SUPPORT)
 	heap = thr->heap;
-	if (heap->dbg_pause_act == thr->callstack_curr) {
-		if (heap->dbg_pause_flags & DUK_PAUSE_FLAG_FUNC_EXIT) {
+    if(heap->dbg_pause_act == thr->callstack_curr)
+    {
+        if(heap->dbg_pause_flags & DUK_PAUSE_FLAG_FUNC_EXIT)
+        {
+            unsigned char is_in = 0;
+            if(thr->callstack_curr)
+            {
+                duk_activation *act = thr->callstack_curr;
+                thr->callstack_curr = thr->callstack_curr->parent;
+                is_in = is_in_user_file(thr);
+                thr->callstack_curr = act;
+            }
+            if(is_in)
+            {
 			DUK_D(DUK_DPRINT("PAUSE TRIGGERED by function exit"));
 			duk_debug_set_paused(heap);
-		} else {
+            }
+        }
+        else
+        {
 			DUK_D(DUK_DPRINT("unwound past dbg_pause_act, set to NULL"));
 			heap->dbg_pause_act = NULL;  /* avoid stale pointers */
 		}
@@ -241,7 +291,8 @@ DUK_LOCAL void duk__activation_unwind_nofree_norz(duk_hthread *thr) {
 	 *  established for an active catch clause.
 	 */
 
-	while (act->cat != NULL) {
+    while(act->cat != NULL)
+    {
 		duk_hthread_catcher_unwind_norz(thr, act);
 	}
 
@@ -256,8 +307,10 @@ DUK_LOCAL void duk__activation_unwind_nofree_norz(duk_hthread *thr) {
 	 */
 
 	func = DUK_ACT_GET_FUNC(act);
-	if (func != NULL && !DUK_HOBJECT_HAS_NEWENV(func)) {
-		DUK_DDD(DUK_DDDPRINT("skip closing environments, envs not owned by this activation"));
+    if(func != NULL && !DUK_HOBJECT_HAS_NEWENV(func))
+    {
+        DUK_DDD(DUK_DDDPRINT(
+            "skip closing environments, envs not owned by this activation"));
 		goto skip_env_close;
 	}
 	/* func is NULL for lightfunc */
@@ -274,9 +327,11 @@ DUK_LOCAL void duk__activation_unwind_nofree_norz(duk_hthread *thr) {
 	 * an actual sandboxing problem for error unwinds, and needs to be
 	 * fixed e.g. by preallocating the scope property slots.
 	 */
-	if (act->var_env != NULL) {
+    if(act->var_env != NULL)
+    {
 		DUK_DDD(DUK_DDDPRINT("closing var_env record %p -> %!O",
-		                     (void *) act->var_env, (duk_heaphdr *) act->var_env));
+                             (void *)act->var_env,
+                             (duk_heaphdr *)act->var_env));
 		duk_js_close_environment_record(thr, act->var_env);
 	}
 
@@ -286,7 +341,8 @@ DUK_LOCAL void duk__activation_unwind_nofree_norz(duk_hthread *thr) {
 	 *  Update preventcount
 	 */
 
-	if (act->flags & DUK_ACT_FLAG_PREVENT_YIELD) {
+    if(act->flags & DUK_ACT_FLAG_PREVENT_YIELD)
+    {
 		DUK_ASSERT(thr->callstack_preventcount >= 1);
 		thr->callstack_preventcount--;
 	}
@@ -311,7 +367,8 @@ DUK_LOCAL void duk__activation_unwind_nofree_norz(duk_hthread *thr) {
  * activation exists.  The call is side effect free, except that scope
  * closure may currently throw an out-of-memory error.
  */
-DUK_INTERNAL void duk_hthread_activation_unwind_norz(duk_hthread *thr) {
+DUK_INTERNAL void duk_hthread_activation_unwind_norz(duk_hthread *thr)
+{
 	duk_activation *act;
 
 	duk__activation_unwind_nofree_norz(thr);
@@ -336,7 +393,8 @@ DUK_INTERNAL void duk_hthread_activation_unwind_norz(duk_hthread *thr) {
 	 */
 }
 
-DUK_INTERNAL void duk_hthread_activation_unwind_reuse_norz(duk_hthread *thr) {
+DUK_INTERNAL void duk_hthread_activation_unwind_reuse_norz(duk_hthread *thr)
+{
 	duk__activation_unwind_nofree_norz(thr);
 }
 
@@ -345,18 +403,24 @@ DUK_INTERNAL void duk_hthread_activation_unwind_reuse_norz(duk_hthread *thr) {
  * to its caller, etc.  Starting from Duktape 2.2 finding the activation is
  * a linked list scan which gets more expensive the deeper the lookup is.
  */
-DUK_INTERNAL duk_activation *duk_hthread_get_activation_for_level(duk_hthread *thr, duk_int_t level) {
+DUK_INTERNAL duk_activation *
+duk_hthread_get_activation_for_level(duk_hthread *thr, duk_int_t level)
+{
 	duk_activation *act;
 
-	if (level >= 0) {
+    if(level >= 0)
+    {
 		return NULL;
 	}
 	act = thr->callstack_curr;
-	for (;;) {
-		if (act == NULL) {
+    for(;;)
+    {
+        if(act == NULL)
+        {
 			return act;
 		}
-		if (level == -1) {
+        if(level == -1)
+        {
 			return act;
 		}
 		level++;
@@ -366,7 +430,8 @@ DUK_INTERNAL duk_activation *duk_hthread_get_activation_for_level(duk_hthread *t
 }
 
 #if defined(DUK_USE_FINALIZER_TORTURE)
-DUK_INTERNAL void duk_hthread_valstack_torture_realloc(duk_hthread *thr) {
+DUK_INTERNAL void duk_hthread_valstack_torture_realloc(duk_hthread *thr)
+{
 	duk_size_t alloc_size;
 	duk_tval *new_ptr;
 	duk_ptrdiff_t alloc_end_off;
@@ -374,17 +439,23 @@ DUK_INTERNAL void duk_hthread_valstack_torture_realloc(duk_hthread *thr) {
 	duk_ptrdiff_t bottom_off;
 	duk_ptrdiff_t top_off;
 
-	if (thr->valstack == NULL) {
+    if(thr->valstack == NULL)
+    {
 		DUK_D(DUK_DPRINT("skip valstack torture realloc, valstack is NULL"));
 		return;
 	}
 
-	alloc_end_off = (duk_ptrdiff_t) ((duk_uint8_t *) thr->valstack_alloc_end - (duk_uint8_t *) thr->valstack);
-	end_off = (duk_ptrdiff_t) ((duk_uint8_t *) thr->valstack_end - (duk_uint8_t *) thr->valstack);
-	bottom_off = (duk_ptrdiff_t) ((duk_uint8_t *) thr->valstack_bottom - (duk_uint8_t *) thr->valstack);
-	top_off = (duk_ptrdiff_t) ((duk_uint8_t *) thr->valstack_top - (duk_uint8_t *) thr->valstack);
+    alloc_end_off = (duk_ptrdiff_t)((duk_uint8_t *)thr->valstack_alloc_end -
+                                    (duk_uint8_t *)thr->valstack);
+    end_off = (duk_ptrdiff_t)((duk_uint8_t *)thr->valstack_end -
+                              (duk_uint8_t *)thr->valstack);
+    bottom_off = (duk_ptrdiff_t)((duk_uint8_t *)thr->valstack_bottom -
+                                 (duk_uint8_t *)thr->valstack);
+    top_off = (duk_ptrdiff_t)((duk_uint8_t *)thr->valstack_top -
+                              (duk_uint8_t *)thr->valstack);
 	alloc_size = (duk_size_t) alloc_end_off;
-	if (alloc_size == 0) {
+    if(alloc_size == 0)
+    {
 		DUK_D(DUK_DPRINT("skip valstack torture realloc, alloc_size is zero"));
 		return;
 	}
@@ -396,11 +467,15 @@ DUK_INTERNAL void duk_hthread_valstack_torture_realloc(duk_hthread *thr) {
 		duk_memset((void *) thr->valstack, 0x55, alloc_size);
 		DUK_FREE_CHECKED(thr, (void *) thr->valstack);
 		thr->valstack = new_ptr;
-		thr->valstack_alloc_end = (duk_tval *) ((duk_uint8_t *) new_ptr + alloc_end_off);
+        thr->valstack_alloc_end =
+            (duk_tval *)((duk_uint8_t *)new_ptr + alloc_end_off);
 		thr->valstack_end = (duk_tval *) ((duk_uint8_t *) new_ptr + end_off);
-		thr->valstack_bottom = (duk_tval *) ((duk_uint8_t *) new_ptr + bottom_off);
+        thr->valstack_bottom =
+            (duk_tval *)((duk_uint8_t *)new_ptr + bottom_off);
 		thr->valstack_top = (duk_tval *) ((duk_uint8_t *) new_ptr + top_off);
-	} else {
+    }
+    else
+    {
 		DUK_D(DUK_DPRINT("failed to realloc valstack for torture, ignore"));
 	}
 }

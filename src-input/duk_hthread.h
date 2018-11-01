@@ -32,12 +32,19 @@
  */
 
 #define DUK_ACT_FLAG_STRICT             (1U << 0)  /* function executes in strict mode */
-#define DUK_ACT_FLAG_TAILCALLED         (1U << 1)  /* activation has tail called one or more times */
-#define DUK_ACT_FLAG_CONSTRUCT          (1U << 2)  /* function executes as a constructor (called via "new") */
-#define DUK_ACT_FLAG_PREVENT_YIELD      (1U << 3)  /* activation prevents yield (native call or "new") */
-#define DUK_ACT_FLAG_DIRECT_EVAL        (1U << 4)  /* activation is a direct eval call */
-#define DUK_ACT_FLAG_CONSTRUCT_PROXY    (1U << 5)  /* activation is for Proxy 'construct' call, special return value handling */
-#define DUK_ACT_FLAG_BREAKPOINT_ACTIVE  (1U << 6)  /* activation has active breakpoint(s) */
+#define DUK_ACT_FLAG_TAILCALLED                                                \
+    (1U << 1) /* activation has tail called one or more times */
+#define DUK_ACT_FLAG_CONSTRUCT                                                 \
+    (1U << 2) /* function executes as a constructor (called via "new") */
+#define DUK_ACT_FLAG_PREVENT_YIELD                                             \
+    (1U << 3) /* activation prevents yield (native call or "new") */
+#define DUK_ACT_FLAG_DIRECT_EVAL                                               \
+    (1U << 4) /* activation is a direct eval call */
+#define DUK_ACT_FLAG_CONSTRUCT_PROXY                                           \
+    (1U << 5) /* activation is for Proxy 'construct' call, special return      \
+                 value handling */
+#define DUK_ACT_FLAG_BREAKPOINT_ACTIVE                                         \
+    (1U << 6) /* activation has active breakpoint(s) */
 
 #define DUK_ACT_GET_FUNC(act)           ((act)->func)
 
@@ -45,7 +52,8 @@
  *  Flags for __FILE__ / __LINE__ registered into tracedata
  */
 
-#define DUK_TB_FLAG_NOBLAME_FILELINE    (1U << 0)  /* don't report __FILE__ / __LINE__ as fileName/lineNumber */
+#define DUK_TB_FLAG_NOBLAME_FILELINE                                           \
+    (1U << 0) /* don't report __FILE__ / __LINE__ as fileName/lineNumber */
 
 /*
  *  Catcher defines
@@ -53,7 +61,8 @@
 
 /* XXX: remove catcher type entirely */
 
-/* flags field: LLLLLLFT, L = label (24 bits), F = flags (4 bits), T = type (4 bits) */
+/* flags field: LLLLLLFT, L = label (24 bits), F = flags (4 bits), T = type (4
+ * bits) */
 #define DUK_CAT_TYPE_MASK            0x0000000fUL
 #define DUK_CAT_TYPE_BITS            4
 #define DUK_CAT_LABEL_MASK           0xffffff00UL
@@ -62,44 +71,65 @@
 
 #define DUK_CAT_FLAG_CATCH_ENABLED          (1U << 4)   /* catch part will catch */
 #define DUK_CAT_FLAG_FINALLY_ENABLED        (1U << 5)   /* finally part will catch */
-#define DUK_CAT_FLAG_CATCH_BINDING_ENABLED  (1U << 6)   /* request to create catch binding */
-#define DUK_CAT_FLAG_LEXENV_ACTIVE          (1U << 7)   /* catch or with binding is currently active */
+#define DUK_CAT_FLAG_CATCH_BINDING_ENABLED                                     \
+    (1U << 6) /* request to create catch binding */
+#define DUK_CAT_FLAG_LEXENV_ACTIVE                                             \
+    (1U << 7) /* catch or with binding is currently active */
 
 #define DUK_CAT_TYPE_UNKNOWN         0
 #define DUK_CAT_TYPE_TCF             1
 #define DUK_CAT_TYPE_LABEL           2
 
 #define DUK_CAT_GET_TYPE(c)          ((c)->flags & DUK_CAT_TYPE_MASK)
-#define DUK_CAT_GET_LABEL(c)         (((c)->flags & DUK_CAT_LABEL_MASK) >> DUK_CAT_LABEL_SHIFT)
+#define DUK_CAT_GET_LABEL(c)                                                   \
+    (((c)->flags & DUK_CAT_LABEL_MASK) >> DUK_CAT_LABEL_SHIFT)
 
 #define DUK_CAT_HAS_CATCH_ENABLED(c)           ((c)->flags & DUK_CAT_FLAG_CATCH_ENABLED)
-#define DUK_CAT_HAS_FINALLY_ENABLED(c)         ((c)->flags & DUK_CAT_FLAG_FINALLY_ENABLED)
-#define DUK_CAT_HAS_CATCH_BINDING_ENABLED(c)   ((c)->flags & DUK_CAT_FLAG_CATCH_BINDING_ENABLED)
+#define DUK_CAT_HAS_FINALLY_ENABLED(c)                                         \
+    ((c)->flags & DUK_CAT_FLAG_FINALLY_ENABLED)
+#define DUK_CAT_HAS_CATCH_BINDING_ENABLED(c)                                   \
+    ((c)->flags & DUK_CAT_FLAG_CATCH_BINDING_ENABLED)
 #define DUK_CAT_HAS_LEXENV_ACTIVE(c)           ((c)->flags & DUK_CAT_FLAG_LEXENV_ACTIVE)
 
-#define DUK_CAT_SET_CATCH_ENABLED(c)    do { \
+#define DUK_CAT_SET_CATCH_ENABLED(c)                                           \
+    do                                                                         \
+    {                                                                          \
 		(c)->flags |= DUK_CAT_FLAG_CATCH_ENABLED; \
 	} while (0)
-#define DUK_CAT_SET_FINALLY_ENABLED(c)  do { \
+#define DUK_CAT_SET_FINALLY_ENABLED(c)                                         \
+    do                                                                         \
+    {                                                                          \
 		(c)->flags |= DUK_CAT_FLAG_FINALLY_ENABLED; \
 	} while (0)
-#define DUK_CAT_SET_CATCH_BINDING_ENABLED(c)    do { \
+#define DUK_CAT_SET_CATCH_BINDING_ENABLED(c)                                   \
+    do                                                                         \
+    {                                                                          \
 		(c)->flags |= DUK_CAT_FLAG_CATCH_BINDING_ENABLED; \
 	} while (0)
-#define DUK_CAT_SET_LEXENV_ACTIVE(c)    do { \
+#define DUK_CAT_SET_LEXENV_ACTIVE(c)                                           \
+    do                                                                         \
+    {                                                                          \
 		(c)->flags |= DUK_CAT_FLAG_LEXENV_ACTIVE; \
 	} while (0)
 
-#define DUK_CAT_CLEAR_CATCH_ENABLED(c)    do { \
+#define DUK_CAT_CLEAR_CATCH_ENABLED(c)                                         \
+    do                                                                         \
+    {                                                                          \
 		(c)->flags &= ~DUK_CAT_FLAG_CATCH_ENABLED; \
 	} while (0)
-#define DUK_CAT_CLEAR_FINALLY_ENABLED(c)  do { \
+#define DUK_CAT_CLEAR_FINALLY_ENABLED(c)                                       \
+    do                                                                         \
+    {                                                                          \
 		(c)->flags &= ~DUK_CAT_FLAG_FINALLY_ENABLED; \
 	} while (0)
-#define DUK_CAT_CLEAR_CATCH_BINDING_ENABLED(c)    do { \
+#define DUK_CAT_CLEAR_CATCH_BINDING_ENABLED(c)                                 \
+    do                                                                         \
+    {                                                                          \
 		(c)->flags &= ~DUK_CAT_FLAG_CATCH_BINDING_ENABLED; \
 	} while (0)
-#define DUK_CAT_CLEAR_LEXENV_ACTIVE(c)    do { \
+#define DUK_CAT_CLEAR_LEXENV_ACTIVE(c)                                         \
+    do                                                                         \
+    {                                                                          \
 		(c)->flags &= ~DUK_CAT_FLAG_LEXENV_ACTIVE; \
 	} while (0)
 
@@ -113,17 +143,19 @@
 #else  /* DUK_USE_ROM_STRINGS */
 #if defined(DUK_USE_HEAPPTR16)
 #define DUK_HTHREAD_GET_STRING(thr,idx) \
-	((duk_hstring *) DUK_USE_HEAPPTR_DEC16((thr)->heap->heap_udata, (thr)->strs16[(idx)]))
+    ((duk_hstring *)DUK_USE_HEAPPTR_DEC16((thr)->heap->heap_udata,             \
+                                          (thr)->strs16[(idx)]))
 #else
-#define DUK_HTHREAD_GET_STRING(thr,idx) \
-	((thr)->strs[(idx)])
+#define DUK_HTHREAD_GET_STRING(thr, idx) ((thr)->strs[(idx)])
 #endif
 #endif  /* DUK_USE_ROM_STRINGS */
 
 /* values for the state field */
 #define DUK_HTHREAD_STATE_INACTIVE     1   /* thread not currently running */
-#define DUK_HTHREAD_STATE_RUNNING      2   /* thread currently running (only one at a time) */
-#define DUK_HTHREAD_STATE_RESUMED      3   /* thread resumed another thread (active but not running) */
+#define DUK_HTHREAD_STATE_RUNNING                                              \
+    2 /* thread currently running (only one at a time) */
+#define DUK_HTHREAD_STATE_RESUMED                                              \
+    3 /* thread resumed another thread (active but not running) */
 #define DUK_HTHREAD_STATE_YIELDED      4   /* thread has yielded */
 #define DUK_HTHREAD_STATE_TERMINATED   5   /* thread has terminated */
 
@@ -145,16 +177,21 @@
  */
 
 /* Assertions for internals. */
-#define DUK_ASSERT_HTHREAD_VALID(thr) do { \
+#define DUK_ASSERT_HTHREAD_VALID(thr)                                          \
+    do                                                                         \
+    {                                                                          \
 		DUK_ASSERT((thr) != NULL); \
-		DUK_ASSERT(DUK_HEAPHDR_GET_TYPE((duk_heaphdr *) (thr)) == DUK_HTYPE_OBJECT); \
+        DUK_ASSERT(DUK_HEAPHDR_GET_TYPE((duk_heaphdr *)(thr)) ==               \
+                   DUK_HTYPE_OBJECT);                                          \
 		DUK_ASSERT(DUK_HOBJECT_IS_THREAD((duk_hobject *) (thr))); \
 		DUK_ASSERT((thr)->unused1 == 0); \
 		DUK_ASSERT((thr)->unused2 == 0); \
 	} while (0)
 
 /* Assertions for public API calls; a bit stronger. */
-#define DUK_ASSERT_CTX_VALID(thr) do { \
+#define DUK_ASSERT_CTX_VALID(thr)                                              \
+    do                                                                         \
+    {                                                                          \
 		DUK_ASSERT((thr) != NULL); \
 		DUK_ASSERT_HTHREAD_VALID((thr)); \
 		DUK_ASSERT((thr)->valstack != NULL); \
@@ -173,7 +210,9 @@
 /* Assertions for API call entry specifically.  Checks 'ctx' but also may
  * check internal state (e.g. not in a debugger transport callback).
  */
-#define DUK_ASSERT_API_ENTRY(thr) do { \
+#define DUK_ASSERT_API_ENTRY(thr)                                              \
+    do                                                                         \
+    {                                                                          \
 		DUK_ASSERT_CTX_VALID((thr)); \
 		DUK_ASSERT((thr)->heap != NULL); \
 		DUK_ASSERT((thr)->heap->dbg_calling_transport == 0); \
@@ -204,12 +243,18 @@
  */
 
 /* Fields are ordered for alignment/packing. */
-struct duk_activation {
-	duk_tval tv_func;       /* borrowed: full duk_tval for function being executed; for lightfuncs */
-	duk_hobject *func;      /* borrowed: function being executed; for bound function calls, this is the final, real function, NULL for lightfuncs */
+struct duk_activation
+{
+    duk_tval tv_func; /* borrowed: full duk_tval for function being executed;
+                         for lightfuncs */
+    duk_hobject
+        *func; /* borrowed: function being executed; for bound function calls,
+                  this is the final, real function, NULL for lightfuncs */
 	duk_activation *parent; /* previous (parent) activation (or NULL if none) */
-	duk_hobject *var_env;   /* current variable environment (may be NULL if delayed) */
-	duk_hobject *lex_env;   /* current lexical environment (may be NULL if delayed) */
+    duk_hobject
+        *var_env; /* current variable environment (may be NULL if delayed) */
+    duk_hobject
+        *lex_env;     /* current lexical environment (may be NULL if delayed) */
 	duk_catcher *cat;       /* current catcher (or NULL) */
 
 #if defined(DUK_USE_NONSTD_FUNC_CALLER_PROPERTY)
@@ -219,7 +264,8 @@ struct duk_activation {
 	duk_hobject *prev_caller;
 #endif
 
-	duk_instr_t *curr_pc;   /* next instruction to execute (points to 'func' bytecode, stable pointer), NULL for native calls */
+    duk_instr_t *curr_pc; /* next instruction to execute (points to 'func'
+                             bytecode, stable pointer), NULL for native calls */
 
 	/* bottom_byteoff and retval_byteoff are only used for book-keeping
 	 * of ECMAScript-initiated calls, to allow returning to an ECMAScript
@@ -265,19 +311,24 @@ struct duk_activation {
 	duk_small_uint_t flags;
 };
 
-struct duk_catcher {
+struct duk_catcher
+{
 	duk_catcher *parent;            /* previous (parent) catcher (or NULL if none) */
-	duk_hstring *h_varname;         /* borrowed reference to catch variable name (or NULL if none) */
+    duk_hstring *h_varname; /* borrowed reference to catch variable name (or
+                               NULL if none) */
 	                                /* (reference is valid as long activation exists) */
-	duk_instr_t *pc_base;           /* resume execution from pc_base or pc_base+1 (points to 'func' bytecode, stable pointer) */
-	duk_size_t idx_base;            /* idx_base and idx_base+1 get completion value and type */
+    duk_instr_t *pc_base; /* resume execution from pc_base or pc_base+1 (points
+                             to 'func' bytecode, stable pointer) */
+    duk_size_t
+        idx_base; /* idx_base and idx_base+1 get completion value and type */
 	duk_uint32_t flags;             /* type and control flags, label number */
 	/* XXX: could pack 'flags' and 'idx_base' to same value in practice,
 	 * on 32-bit targets this would make duk_catcher 16 bytes.
 	 */
 };
 
-struct duk_hthread {
+struct duk_hthread
+{
 	/* Shared object part */
 	duk_hobject obj;
 
@@ -330,7 +381,8 @@ struct duk_hthread {
 	 *     uuu = outside active value stack, initialized to 'undefined'
 	 */
 	duk_tval *valstack;                     /* start of valstack allocation */
-	duk_tval *valstack_end;                 /* end of valstack reservation/guarantee (exclusive) */
+    duk_tval
+        *valstack_end; /* end of valstack reservation/guarantee (exclusive) */
 	duk_tval *valstack_alloc_end;           /* end of valstack allocation */
 	duk_tval *valstack_bottom;              /* bottom of current frame */
 	duk_tval *valstack_top;                 /* top of current frame (exclusive) */
@@ -339,8 +391,10 @@ struct duk_hthread {
 	 * activation (or NULL if nothing is active).
 	 */
 	duk_activation *callstack_curr;         /* current activation (or NULL if none) */
-	duk_size_t callstack_top;               /* number of activation records in callstack (0 if none) */
-	duk_size_t callstack_preventcount;      /* number of activation records in callstack preventing a yield */
+    duk_size_t callstack_top; /* number of activation records in callstack (0 if
+                                 none) */
+    duk_size_t callstack_preventcount; /* number of activation records in
+                                          callstack preventing a yield */
 
 	/* Yield/resume book-keeping. */
 	duk_hthread *resumer;                   /* who resumed us (if any) */
@@ -383,38 +437,52 @@ struct duk_hthread {
 	duk_hstring **strs;
 #endif
 #endif
+
+    duk_bool_t sent_fatal_throw; // to be able to resend
 };
 
 /*
  *  Prototypes
  */
 
-DUK_INTERNAL_DECL void duk_hthread_copy_builtin_objects(duk_hthread *thr_from, duk_hthread *thr_to);
+DUK_INTERNAL_DECL void duk_hthread_copy_builtin_objects(duk_hthread *thr_from,
+                                                        duk_hthread *thr_to);
 DUK_INTERNAL_DECL void duk_hthread_create_builtin_objects(duk_hthread *thr);
-DUK_INTERNAL_DECL duk_bool_t duk_hthread_init_stacks(duk_heap *heap, duk_hthread *thr);
+DUK_INTERNAL_DECL duk_bool_t duk_hthread_init_stacks(duk_heap *heap,
+                                                     duk_hthread *thr);
 DUK_INTERNAL_DECL void duk_hthread_terminate(duk_hthread *thr);
 
-DUK_INTERNAL_DECL duk_activation *duk_hthread_activation_alloc(duk_hthread *thr);
-DUK_INTERNAL_DECL void duk_hthread_activation_free(duk_hthread *thr, duk_activation *act);
+DUK_INTERNAL_DECL duk_activation *
+duk_hthread_activation_alloc(duk_hthread *thr);
+DUK_INTERNAL_DECL void duk_hthread_activation_free(duk_hthread *thr,
+                                                   duk_activation *act);
 DUK_INTERNAL_DECL void duk_hthread_activation_unwind_norz(duk_hthread *thr);
-DUK_INTERNAL_DECL void duk_hthread_activation_unwind_reuse_norz(duk_hthread *thr);
-DUK_INTERNAL_DECL duk_activation *duk_hthread_get_activation_for_level(duk_hthread *thr, duk_int_t level);
+DUK_INTERNAL_DECL void
+duk_hthread_activation_unwind_reuse_norz(duk_hthread *thr);
+DUK_INTERNAL_DECL duk_activation *
+duk_hthread_get_activation_for_level(duk_hthread *thr, duk_int_t level);
 
 DUK_INTERNAL_DECL duk_catcher *duk_hthread_catcher_alloc(duk_hthread *thr);
-DUK_INTERNAL_DECL void duk_hthread_catcher_free(duk_hthread *thr, duk_catcher *cat);
-DUK_INTERNAL_DECL void duk_hthread_catcher_unwind_norz(duk_hthread *thr, duk_activation *act);
-DUK_INTERNAL_DECL void duk_hthread_catcher_unwind_nolexenv_norz(duk_hthread *thr, duk_activation *act);
+DUK_INTERNAL_DECL void duk_hthread_catcher_free(duk_hthread *thr,
+                                                duk_catcher *cat);
+DUK_INTERNAL_DECL void duk_hthread_catcher_unwind_norz(duk_hthread *thr,
+                                                       duk_activation *act);
+DUK_INTERNAL_DECL void
+duk_hthread_catcher_unwind_nolexenv_norz(duk_hthread *thr, duk_activation *act);
 
 #if defined(DUK_USE_FINALIZER_TORTURE)
 DUK_INTERNAL_DECL void duk_hthread_valstack_torture_realloc(duk_hthread *thr);
 #endif
 
-DUK_INTERNAL_DECL void *duk_hthread_get_valstack_ptr(duk_heap *heap, void *ud);  /* indirect allocs */
+DUK_INTERNAL_DECL void *
+duk_hthread_get_valstack_ptr(duk_heap *heap, void *ud); /* indirect allocs */
 
 #if defined(DUK_USE_DEBUGGER_SUPPORT)
-DUK_INTERNAL_DECL duk_uint_fast32_t duk_hthread_get_act_curr_pc(duk_hthread *thr, duk_activation *act);
+DUK_INTERNAL_DECL duk_uint_fast32_t
+duk_hthread_get_act_curr_pc(duk_hthread *thr, duk_activation *act);
 #endif
-DUK_INTERNAL_DECL duk_uint_fast32_t duk_hthread_get_act_prev_pc(duk_hthread *thr, duk_activation *act);
+DUK_INTERNAL_DECL duk_uint_fast32_t
+duk_hthread_get_act_prev_pc(duk_hthread *thr, duk_activation *act);
 DUK_INTERNAL_DECL void duk_hthread_sync_currpc(duk_hthread *thr);
 DUK_INTERNAL_DECL void duk_hthread_sync_and_null_currpc(duk_hthread *thr);
 
