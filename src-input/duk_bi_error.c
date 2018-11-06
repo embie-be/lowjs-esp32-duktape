@@ -4,7 +4,8 @@
 
 #include "duk_internal.h"
 
-DUK_INTERNAL duk_ret_t duk_bi_error_constructor_shared(duk_hthread *thr) {
+DUK_INTERNAL duk_ret_t duk_bi_error_constructor_shared(duk_hthread *thr)
+{
 	/* Behavior for constructor and non-constructor call is
 	 * the same except for augmenting the created error.  When
 	 * called as a constructor, the caller (duk_new()) will handle
@@ -15,8 +16,8 @@ DUK_INTERNAL duk_ret_t duk_bi_error_constructor_shared(duk_hthread *thr) {
 	duk_small_int_t bidx_prototype = duk_get_current_magic(thr);
 
 	/* same for both error and each subclass like TypeError */
-	duk_uint_t flags_and_class = DUK_HOBJECT_FLAG_EXTENSIBLE |
-	                             DUK_HOBJECT_FLAG_FASTREFS |
+    duk_uint_t flags_and_class =
+        DUK_HOBJECT_FLAG_EXTENSIBLE | DUK_HOBJECT_FLAG_FASTREFS |
 	                             DUK_HOBJECT_CLASS_AS_FLAGS(DUK_HOBJECT_CLASS_ERROR);
 
 	(void) duk_push_object_helper(thr, flags_and_class, bidx_prototype);
@@ -24,10 +25,12 @@ DUK_INTERNAL duk_ret_t duk_bi_error_constructor_shared(duk_hthread *thr) {
 	/* If message is undefined, the own property 'message' is not set at
 	 * all to save property space.  An empty message is inherited anyway.
 	 */
-	if (!duk_is_undefined(thr, 0)) {
+    if(!duk_is_undefined(thr, 0))
+    {
 		duk_to_string(thr, 0);
 		duk_dup_0(thr);  /* [ message error message ] */
-		duk_xdef_prop_stridx_short(thr, -2, DUK_STRIDX_MESSAGE, DUK_PROPDESC_FLAGS_WC);
+        duk_xdef_prop_stridx_short(thr, -2, DUK_STRIDX_MESSAGE,
+                                   DUK_PROPDESC_FLAGS_WC);
 	}
 
 	/* Augment the error if called as a normal function.  __FILE__ and __LINE__
@@ -35,24 +38,29 @@ DUK_INTERNAL duk_ret_t duk_bi_error_constructor_shared(duk_hthread *thr) {
 	 */
 
 #if defined(DUK_USE_AUGMENT_ERROR_CREATE)
-	if (!duk_is_constructor_call(thr)) {
-		duk_err_augment_error_create(thr, thr, NULL, 0, DUK_AUGMENT_FLAG_NOBLAME_FILELINE);
+    if(!duk_is_constructor_call(thr))
+    {
+        duk_err_augment_error_create(thr, thr, NULL, 0,
+                                     DUK_AUGMENT_FLAG_NOBLAME_FILELINE);
 	}
 #endif
 
 	return 1;
 }
 
-DUK_INTERNAL duk_ret_t duk_bi_error_prototype_to_string(duk_hthread *thr) {
+DUK_INTERNAL duk_ret_t duk_bi_error_prototype_to_string(duk_hthread *thr)
+{
 	/* XXX: optimize with more direct internal access */
 
 	duk_push_this(thr);
-	(void) duk_require_hobject_promote_mask(thr, -1, DUK_TYPE_MASK_LIGHTFUNC | DUK_TYPE_MASK_BUFFER);
+    (void)duk_require_hobject_promote_mask(
+        thr, -1, DUK_TYPE_MASK_LIGHTFUNC | DUK_TYPE_MASK_BUFFER);
 
 	/* [ ... this ] */
 
 	duk_get_prop_stridx_short(thr, -1, DUK_STRIDX_NAME);
-	if (duk_is_undefined(thr, -1)) {
+    if(duk_is_undefined(thr, -1))
+    {
 		duk_pop(thr);
 		duk_push_literal(thr, "Error");
 	} else {
@@ -66,20 +74,25 @@ DUK_INTERNAL duk_ret_t duk_bi_error_prototype_to_string(duk_hthread *thr) {
 	 * could conceivably return 'undefined'.
 	 */
 	duk_get_prop_stridx_short(thr, -2, DUK_STRIDX_MESSAGE);
-	if (duk_is_undefined(thr, -1)) {
+    if(duk_is_undefined(thr, -1))
+    {
 		duk_pop(thr);
 		duk_push_hstring_empty(thr);
-	} else {
+    }
+    else
+    {
 		duk_to_string(thr, -1);
 	}
 
 	/* [ ... this name message ] */
 
-	if (duk_get_length(thr, -2) == 0) {
+    if(duk_get_length(thr, -2) == 0)
+    {
 		/* name is empty -> return message */
 		return 1;
 	}
-	if (duk_get_length(thr, -1) == 0) {
+    if(duk_get_length(thr, -1) == 0)
+    {
 		/* message is empty -> return name */
 		duk_pop(thr);
 		return 1;
@@ -112,11 +125,14 @@ DUK_INTERNAL duk_ret_t duk_bi_error_prototype_to_string(duk_hthread *thr) {
 #define DUK__OUTPUT_TYPE_FILENAME    0
 #define DUK__OUTPUT_TYPE_LINENUMBER  1
 
-DUK_LOCAL duk_ret_t duk__error_getter_helper(duk_hthread *thr, duk_small_int_t output_type) {
+DUK_LOCAL duk_ret_t duk__error_getter_helper(duk_hthread *thr,
+                                             duk_small_int_t output_type)
+{
 	duk_idx_t idx_td;
 	duk_small_int_t i;  /* traceback depth fits into 16 bits */
 	duk_small_int_t t;  /* stack type fits into 16 bits */
-	duk_small_int_t count_func = 0;  /* traceback depth ensures fits into 16 bits */
+    duk_small_int_t count_func =
+        0; /* traceback depth ensures fits into 16 bits */
 	const char *str_tailcall = " tailcall";
 	const char *str_strict = " strict";
 	const char *str_construct = " construct";
@@ -137,9 +153,11 @@ DUK_LOCAL duk_ret_t duk__error_getter_helper(duk_hthread *thr, duk_small_int_t o
 
 	/* XXX: skip null filename? */
 
-	if (duk_check_type(thr, idx_td, DUK_TYPE_OBJECT)) {
+    if(duk_check_type(thr, idx_td, DUK_TYPE_OBJECT))
+    {
 		/* Current tracedata contains 2 entries per callstack entry. */
-		for (i = 0; ; i += 2) {
+        for(i = 0;; i += 2)
+        {
 			duk_int_t pc;
 			duk_uint_t line;
 			duk_uint_t flags;
@@ -157,7 +175,8 @@ DUK_LOCAL duk_ret_t duk__error_getter_helper(duk_hthread *thr, duk_small_int_t o
 			flags = duk_double_to_uint_t(DUK_FLOOR(d / DUK_DOUBLE_2TO32));
 			t = (duk_small_int_t) duk_get_type(thr, -2);
 
-			if (t == DUK_TYPE_OBJECT || t == DUK_TYPE_LIGHTFUNC) {
+            if(t == DUK_TYPE_OBJECT || t == DUK_TYPE_LIGHTFUNC)
+            {
 				/*
 				 *  ECMAScript/native function call or lightfunc call
 				 */
@@ -174,7 +193,8 @@ DUK_LOCAL duk_ret_t duk__error_getter_helper(duk_hthread *thr, duk_small_int_t o
 				duk_get_prop_stridx_short(thr, -3, DUK_STRIDX_FILE_NAME);
 
 #if defined(DUK_USE_PC2LINE)
-				line = (duk_uint_t) duk_hobject_pc2line_query(thr, -4, (duk_uint_fast32_t) pc);
+                line = (duk_uint_t)duk_hobject_pc2line_query(
+                    thr, -4, (duk_uint_fast32_t)pc);
 #else
 				line = 0;
 #endif
@@ -184,20 +204,28 @@ DUK_LOCAL duk_ret_t duk__error_getter_helper(duk_hthread *thr, duk_small_int_t o
 				/* When looking for .fileName/.lineNumber, blame first
 				 * function which has a .fileName.
 				 */
-				if (duk_is_string_notsymbol(thr, -1)) {
-					if (output_type == DUK__OUTPUT_TYPE_FILENAME) {
+                if(duk_is_string_notsymbol(thr, -1))
+                {
+                    if(output_type == DUK__OUTPUT_TYPE_FILENAME)
+                    {
 						return 1;
-					} else if (output_type == DUK__OUTPUT_TYPE_LINENUMBER) {
+                    }
+                    else if(output_type == DUK__OUTPUT_TYPE_LINENUMBER)
+                    {
 						duk_push_uint(thr, line);
 						return 1;
 					}
 				}
 
-				/* XXX: Change 'anon' handling here too, to use empty string for anonymous functions? */
-				/* XXX: Could be improved by coercing to a readable duk_tval (especially string escaping) */
+                /* XXX: Change 'anon' handling here too, to use empty string for
+                 * anonymous functions? */
+                /* XXX: Could be improved by coercing to a readable duk_tval
+                 * (especially string escaping) */
 				h_name = duk_get_hstring_notsymbol(thr, -2);  /* may be NULL */
-				funcname = (h_name == NULL || h_name == DUK_HTHREAD_STRING_EMPTY_STRING(thr)) ?
-				           "[anon]" : (const char *) DUK_HSTRING_GET_DATA(h_name);
+                funcname = (h_name == NULL ||
+                            h_name == DUK_HTHREAD_STRING_EMPTY_STRING(thr))
+                               ? "[anon]"
+                               : (const char *)DUK_HSTRING_GET_DATA(h_name);
 				filename = duk_get_string_notsymbol(thr, -1);
 				filename = filename ? filename : "";
 				DUK_ASSERT(funcname != NULL);
@@ -205,78 +233,93 @@ DUK_LOCAL duk_ret_t duk__error_getter_helper(duk_hthread *thr, duk_small_int_t o
 
 				h_func = duk_get_hobject(thr, -4);  /* NULL for lightfunc */
 
-				if (h_func == NULL) {
-					duk_push_sprintf(thr, "at %s light%s%s%s%s%s",
-					                 (const char *) funcname,
-					                 (const char *) ((flags & DUK_ACT_FLAG_STRICT) ? str_strict : str_empty),
-					                 (const char *) ((flags & DUK_ACT_FLAG_TAILCALLED) ? str_tailcall : str_empty),
-					                 (const char *) ((flags & DUK_ACT_FLAG_CONSTRUCT) ? str_construct : str_empty),
-					                 (const char *) ((flags & DUK_ACT_FLAG_DIRECT_EVAL) ? str_directeval : str_empty),
-					                 (const char *) ((flags & DUK_ACT_FLAG_PREVENT_YIELD) ? str_prevyield : str_empty));
-				} else if (DUK_HOBJECT_HAS_NATFUNC(h_func)) {
-					duk_push_sprintf(thr, "at %s (%s) native%s%s%s%s%s",
-					                 (const char *) funcname,
-					                 (const char *) filename,
-					                 (const char *) ((flags & DUK_ACT_FLAG_STRICT) ? str_strict : str_empty),
-					                 (const char *) ((flags & DUK_ACT_FLAG_TAILCALLED) ? str_tailcall : str_empty),
-					                 (const char *) ((flags & DUK_ACT_FLAG_CONSTRUCT) ? str_construct : str_empty),
-					                 (const char *) ((flags & DUK_ACT_FLAG_DIRECT_EVAL) ? str_directeval : str_empty),
-					                 (const char *) ((flags & DUK_ACT_FLAG_PREVENT_YIELD) ? str_prevyield : str_empty));
-				} else {
-					duk_push_sprintf(thr, "at %s (%s:%lu)%s%s%s%s%s",
-					                 (const char *) funcname,
-					                 (const char *) filename,
-					                 (unsigned long) line,
-					                 (const char *) ((flags & DUK_ACT_FLAG_STRICT) ? str_strict : str_empty),
-					                 (const char *) ((flags & DUK_ACT_FLAG_TAILCALLED) ? str_tailcall : str_empty),
-					                 (const char *) ((flags & DUK_ACT_FLAG_CONSTRUCT) ? str_construct : str_empty),
-					                 (const char *) ((flags & DUK_ACT_FLAG_DIRECT_EVAL) ? str_directeval : str_empty),
-					                 (const char *) ((flags & DUK_ACT_FLAG_PREVENT_YIELD) ? str_prevyield : str_empty));
-				}
-				duk_replace(thr, -5);   /* [ ... v1 v2 name filename str ] -> [ ... str v2 name filename ] */
-				duk_pop_3(thr);         /* -> [ ... str ] */
-			} else if (t == DUK_TYPE_STRING) {
-				const char *str_file;
-
-				/*
-				 *  __FILE__ / __LINE__ entry, here 'pc' is line number directly.
-				 *  Sometimes __FILE__ / __LINE__ is reported as the source for
-				 *  the error (fileName, lineNumber), sometimes not.
-				 */
-
-				/* [ ... v1(filename) v2(line+flags) ] */
-
-				/* When looking for .fileName/.lineNumber, blame compilation
-				 * or C call site unless flagged not to do so.
-				 */
-				if (!(flags & DUK_TB_FLAG_NOBLAME_FILELINE)) {
-					if (output_type == DUK__OUTPUT_TYPE_FILENAME) {
-						duk_pop(thr);
-						return 1;
-					} else if (output_type == DUK__OUTPUT_TYPE_LINENUMBER) {
-						duk_push_int(thr, pc);
-						return 1;
+                if(h_func == NULL)
+                {
+                    duk_push_sprintf(
+                        thr, "at %s light%s%s%s%s%s", (const char *)funcname,
+                        (const char *)((flags & DUK_ACT_FLAG_STRICT)
+                                           ? str_strict
+                                           : str_empty),
+                        (const char *)((flags & DUK_ACT_FLAG_TAILCALLED)
+                                           ? str_tailcall
+                                           : str_empty),
+                        (const char *)((flags & DUK_ACT_FLAG_CONSTRUCT)
+                                           ? str_construct
+                                           : str_empty),
+                        (const char *)((flags & DUK_ACT_FLAG_DIRECT_EVAL)
+                                           ? str_directeval
+                                           : str_empty),
+                        (const char *)((flags & DUK_ACT_FLAG_PREVENT_YIELD)
+                                           ? str_prevyield
+                                           : str_empty));
 					}
+                else if(DUK_HOBJECT_HAS_NATFUNC(h_func))
+                {
+                    duk_push_sprintf(
+                        thr, "at %s (%s) native%s%s%s%s%s",
+                        (const char *)funcname, (const char *)filename,
+                        (const char *)((flags & DUK_ACT_FLAG_STRICT)
+                                           ? str_strict
+                                           : str_empty),
+                        (const char *)((flags & DUK_ACT_FLAG_TAILCALLED)
+                                           ? str_tailcall
+                                           : str_empty),
+                        (const char *)((flags & DUK_ACT_FLAG_CONSTRUCT)
+                                           ? str_construct
+                                           : str_empty),
+                        (const char *)((flags & DUK_ACT_FLAG_DIRECT_EVAL)
+                                           ? str_directeval
+                                           : str_empty),
+                        (const char *)((flags & DUK_ACT_FLAG_PREVENT_YIELD)
+                                           ? str_prevyield
+                                           : str_empty));
 				}
-
+                else
+                {
+                    duk_push_sprintf(
+                        thr, "at %s (%s:%lu)%s%s%s%s%s", (const char *)funcname,
+                        (const char *)filename, (unsigned long)line,
+                        (const char *)((flags & DUK_ACT_FLAG_STRICT)
+                                           ? str_strict
+                                           : str_empty),
+                        (const char *)((flags & DUK_ACT_FLAG_TAILCALLED)
+                                           ? str_tailcall
+                                           : str_empty),
+                        (const char *)((flags & DUK_ACT_FLAG_CONSTRUCT)
+                                           ? str_construct
+                                           : str_empty),
+                        (const char *)((flags & DUK_ACT_FLAG_DIRECT_EVAL)
+                                           ? str_directeval
+                                           : str_empty),
+                        (const char *)((flags & DUK_ACT_FLAG_PREVENT_YIELD)
+                                           ? str_prevyield
+                                           : str_empty));
+                }
+                duk_replace(thr, -5); /* [ ... v1 v2 name filename str ] -> [
+                                         ... str v2 name filename ] */
+                duk_pop_3(thr);       /* -> [ ... str ] */
+            }
+            else if(t == DUK_TYPE_STRING)
+            {
 				/* Tracedata is trusted but avoid any risk of using a NULL
 				 * for %s format because it has undefined behavior.  Symbols
 				 * don't need to be explicitly rejected as they pose no memory
 				 * safety issues.
 				 */
-				str_file = (const char *) duk_get_string(thr, -2);
-				duk_push_sprintf(thr, "at [anon] (%s:%ld) internal",
-				                 (const char *) (str_file ? str_file : "null"), (long) pc);
+                duk_push_sprintf(thr, "at [anon] internal");
 				duk_replace(thr, -3);  /* [ ... v1 v2 str ] -> [ ... str v2 ] */
 				duk_pop(thr);          /* -> [ ... str ] */
-			} else {
+            }
+            else
+            {
 				/* unknown, ignore */
 				duk_pop_2(thr);
 				break;
 			}
 		}
 
-		if (count_func >= DUK_USE_TRACEBACK_DEPTH) {
+        if(count_func >= DUK_USE_TRACEBACK_DEPTH)
+        {
 			/* Possibly truncated; there is no explicit truncation
 			 * marker so this is the best we can do.
 			 */
@@ -287,14 +330,18 @@ DUK_LOCAL duk_ret_t duk__error_getter_helper(duk_hthread *thr, duk_small_int_t o
 
 	/* [ ... this tracedata sep this str1 ... strN ] */
 
-	if (output_type != DUK__OUTPUT_TYPE_TRACEBACK) {
+    if(output_type != DUK__OUTPUT_TYPE_TRACEBACK)
+    {
 		return 0;
-	} else {
+    }
+    else
+    {
 		/* The 'this' after 'sep' will get ToString() coerced by
 		 * duk_join() automatically.  We don't want to do that
 		 * coercion when providing .fileName or .lineNumber (GH-254).
 		 */
-		duk_join(thr, duk_get_top(thr) - (idx_td + 2) /*count, not including sep*/);
+        duk_join(thr,
+                 duk_get_top(thr) - (idx_td + 2) /*count, not including sep*/);
 		return 1;
 	}
 }
@@ -303,15 +350,19 @@ DUK_LOCAL duk_ret_t duk__error_getter_helper(duk_hthread *thr, duk_small_int_t o
  * save space.  For setters the stridx could be encoded into 'magic'.
  */
 
-DUK_INTERNAL duk_ret_t duk_bi_error_prototype_stack_getter(duk_hthread *thr) {
+DUK_INTERNAL duk_ret_t duk_bi_error_prototype_stack_getter(duk_hthread *thr)
+{
 	return duk__error_getter_helper(thr, DUK__OUTPUT_TYPE_TRACEBACK);
 }
 
-DUK_INTERNAL duk_ret_t duk_bi_error_prototype_filename_getter(duk_hthread *thr) {
+DUK_INTERNAL duk_ret_t duk_bi_error_prototype_filename_getter(duk_hthread *thr)
+{
 	return duk__error_getter_helper(thr, DUK__OUTPUT_TYPE_FILENAME);
 }
 
-DUK_INTERNAL duk_ret_t duk_bi_error_prototype_linenumber_getter(duk_hthread *thr) {
+DUK_INTERNAL duk_ret_t
+duk_bi_error_prototype_linenumber_getter(duk_hthread *thr)
+{
 	return duk__error_getter_helper(thr, DUK__OUTPUT_TYPE_LINENUMBER);
 }
 
@@ -329,26 +380,32 @@ DUK_INTERNAL duk_ret_t duk_bi_error_prototype_linenumber_getter(duk_hthread *thr
  *  of the error so this makes sense.
  */
 
-DUK_INTERNAL duk_ret_t duk_bi_error_prototype_stack_getter(duk_hthread *thr) {
+DUK_INTERNAL duk_ret_t duk_bi_error_prototype_stack_getter(duk_hthread *thr)
+{
 	/* XXX: remove this native function and map 'stack' accessor
 	 * to the toString() implementation directly.
 	 */
 	return duk_bi_error_prototype_to_string(thr);
 }
 
-DUK_INTERNAL duk_ret_t duk_bi_error_prototype_filename_getter(duk_hthread *thr) {
+DUK_INTERNAL duk_ret_t duk_bi_error_prototype_filename_getter(duk_hthread *thr)
+{
 	DUK_UNREF(thr);
 	return 0;
 }
 
-DUK_INTERNAL duk_ret_t duk_bi_error_prototype_linenumber_getter(duk_hthread *thr) {
+DUK_INTERNAL duk_ret_t
+duk_bi_error_prototype_linenumber_getter(duk_hthread *thr)
+{
 	DUK_UNREF(thr);
 	return 0;
 }
 
 #endif  /* DUK_USE_TRACEBACKS */
 
-DUK_LOCAL duk_ret_t duk__error_setter_helper(duk_hthread *thr, duk_small_uint_t stridx_key) {
+DUK_LOCAL duk_ret_t duk__error_setter_helper(duk_hthread *thr,
+                                             duk_small_uint_t stridx_key)
+{
 	/* Attempt to write 'stack', 'fileName', 'lineNumber' works as if
 	 * user code called Object.defineProperty() to create an overriding
 	 * own property.  This allows user code to overwrite .fileName etc
@@ -364,24 +421,29 @@ DUK_LOCAL duk_ret_t duk__error_setter_helper(duk_hthread *thr, duk_small_uint_t 
 
 	/* [ ... obj key value ] */
 
-	DUK_DD(DUK_DDPRINT("error setter: %!T %!T %!T",
-	                   duk_get_tval(thr, -3), duk_get_tval(thr, -2), duk_get_tval(thr, -1)));
+    DUK_DD(DUK_DDPRINT("error setter: %!T %!T %!T", duk_get_tval(thr, -3),
+                       duk_get_tval(thr, -2), duk_get_tval(thr, -1)));
 
-	duk_def_prop(thr, -3, DUK_DEFPROP_HAVE_VALUE |
-	                      DUK_DEFPROP_HAVE_WRITABLE | DUK_DEFPROP_WRITABLE |
+    duk_def_prop(thr, -3,
+                 DUK_DEFPROP_HAVE_VALUE | DUK_DEFPROP_HAVE_WRITABLE |
+                     DUK_DEFPROP_WRITABLE |
 	                      DUK_DEFPROP_HAVE_ENUMERABLE | /*not enumerable*/
 	                      DUK_DEFPROP_HAVE_CONFIGURABLE | DUK_DEFPROP_CONFIGURABLE);
 	return 0;
 }
 
-DUK_INTERNAL duk_ret_t duk_bi_error_prototype_stack_setter(duk_hthread *thr) {
+DUK_INTERNAL duk_ret_t duk_bi_error_prototype_stack_setter(duk_hthread *thr)
+{
 	return duk__error_setter_helper(thr, DUK_STRIDX_STACK);
 }
 
-DUK_INTERNAL duk_ret_t duk_bi_error_prototype_filename_setter(duk_hthread *thr) {
+DUK_INTERNAL duk_ret_t duk_bi_error_prototype_filename_setter(duk_hthread *thr)
+{
 	return duk__error_setter_helper(thr, DUK_STRIDX_FILE_NAME);
 }
 
-DUK_INTERNAL duk_ret_t duk_bi_error_prototype_linenumber_setter(duk_hthread *thr) {
+DUK_INTERNAL duk_ret_t
+duk_bi_error_prototype_linenumber_setter(duk_hthread *thr)
+{
 	return duk__error_setter_helper(thr, DUK_STRIDX_LINE_NUMBER);
 }
