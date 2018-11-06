@@ -71,6 +71,8 @@ DUK_INTERNAL duk_hobject *duk_error_prototype_from_code(duk_hthread *thr,
  *  Helper for debugger throw notify and pause-on-uncaught integration.
  */
 
+void code_print_error();
+
 #if defined(DUK_USE_DEBUGGER_SUPPORT)
 DUK_INTERNAL void duk_err_check_debugger_integration(duk_hthread *thr)
 {
@@ -140,6 +142,8 @@ DUK_INTERNAL void duk_err_check_debugger_integration(duk_hthread *thr)
         {
             if(thr->heap->dbg_pause_flags & DUK_PAUSE_FLAG_UNCAUGHT_ERROR)
             {
+                code_print_error();
+
 #if defined(DUK_USE_DEBUGGER_THROW_NOTIFY)
                 /* Report it to the debug client */
                 DUK_D(DUK_DPRINT(
