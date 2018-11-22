@@ -3496,7 +3496,7 @@ DUK_LOCAL DUK_NOINLINE DUK_HOT void
 duk__js_execute_bytecode_inner(duk_hthread *entry_thread,
                                duk_activation *entry_act)
 {
-    if(neoniousGetStackFree() < 7500)
+    if(neoniousGetStackFree() < 20000)
         duk_generic_error(
             entry_thread,
             "stack full (ask neonious when this is more flexible)");
