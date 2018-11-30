@@ -3490,6 +3490,16 @@ DUK_INTERNAL void duk_js_execute_bytecode(duk_hthread *exec_thr)
 }
 
 int neoniousGetStackFree();
+void duk_compress_stack(duk_context *ctx, duk_ret_t (*func)(duk_context *ctx, void *udata), void *udata);
+
+DUK_LOCAL DUK_NOINLINE DUK_HOT void
+duk__js_execute_bytecode_inner2(duk_hthread *entry_thread, duk_activation *entry_act);
+
+static duk_ret_t call_in_compress(duk_context *ctx, void *udata)
+{
+    duk__js_execute_bytecode_inner2(ctx, (duk_activation *)udata);
+    return 0;
+}
 
 /* Inner executor, performance critical. */
 DUK_LOCAL DUK_NOINLINE DUK_HOT void
@@ -3497,10 +3507,15 @@ duk__js_execute_bytecode_inner(duk_hthread *entry_thread,
                                duk_activation *entry_act)
 {
     if(neoniousGetStackFree() < 20000)
-        duk_generic_error(
-            entry_thread,
-            "stack full (ask neonious when this is more flexible)");
+        duk_compress_stack(entry_thread, call_in_compress, entry_act);
+    else
+        duk__js_execute_bytecode_inner2(entry_thread, entry_act);
+}
 
+DUK_LOCAL DUK_NOINLINE DUK_HOT void
+duk__js_execute_bytecode_inner2(duk_hthread *entry_thread,
+                               duk_activation *entry_act)
+{
     /* Current PC, accessed by other functions through thr->ptr_to_curr_pc.
      * Critical for performance.  It would be safest to make this volatile,
      * but that eliminates performance benefits; aliasing guarantees
