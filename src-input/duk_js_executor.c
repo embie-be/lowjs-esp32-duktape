@@ -3512,6 +3512,15 @@ duk__js_execute_bytecode_inner(duk_hthread *entry_thread,
         duk__js_execute_bytecode_inner2(entry_thread, entry_act);
 }
 
+struct JITEntry
+{
+    char type;
+    void *call;
+};
+struct JITEntry gJITEntries[256];
+
+unsigned int jit_compile(duk_instr_t *pc);
+
 DUK_LOCAL DUK_NOINLINE DUK_HOT void
 duk__js_execute_bytecode_inner2(duk_hthread *entry_thread,
                                duk_activation *entry_act)
@@ -3775,8 +3784,7 @@ restart_execution:
         }
 #endif
 
-        ins = *curr_pc++;
-        DUK_STATS_INC(thr->heap, stats_exec_opcodes);
+        ins = *curr_pc;
 
         /* Typing: use duk_small_(u)int_fast_t when decoding small
          * opcode fields (op, A, B, C, BC) which fit into 16 bits
@@ -3792,6 +3800,26 @@ restart_execution:
          * will (at least usually) omit a bounds check.
          */
         op = (duk_uint8_t)DUK_DEC_OP(ins);
+
+        if(gJITEntries[op].call && gJITEntries[DUK_DEC_OP(curr_pc[1])].call)
+        {
+            unsigned int addr = jit_compile(curr_pc);
+            if(addr)
+            {
+                curr_pc += ((unsigned int (*)(void *, void *))addr)(thr, consts);
+                continue;
+            }
+        }
+        else if(op == 255)
+        {
+            unsigned int addr = 0x40000000 | DUK_DEC_ABC(ins);
+            curr_pc += ((unsigned int (*)(void *, void *))addr)(thr, consts);
+            continue;
+        }
+
+        DUK_STATS_INC(thr->heap, stats_exec_opcodes);
+        curr_pc++;
+
         switch(op)
         {
 

@@ -27,3 +27,4 @@ python tools/configure.py --output-directory=src-neonious --platform=neonious   
 -DDUK_USE_SECTION_B \
 -DDUK_USE_FASTINT \
 -DDUK_USE_DEBUG_BUFSIZE=2048
+cat ../../../jit/jit_pieces.c >> src-neonious/duktape.c
