@@ -41,6 +41,8 @@ DUK_LOCAL void duk__decref_tvals_norz(duk_hthread *thr, duk_tval *tv, duk_idx_t 
 	}
 }
 
+void jit_revert(duk_instr_t *pc);
+
 DUK_INTERNAL void duk_hobject_refcount_finalize_norz(duk_heap *heap, duk_hobject *h) {
 	duk_hthread *thr;
 	duk_uint_fast32_t i;
@@ -127,7 +129,17 @@ DUK_INTERNAL void duk_hobject_refcount_finalize_norz(duk_heap *heap, duk_hobject
 		DUK_ASSERT_HCOMPFUNC_VALID(f);
 
 		if (DUK_LIKELY(DUK_HCOMPFUNC_GET_DATA(heap, f) != NULL)) {
-			tv = DUK_HCOMPFUNC_GET_CONSTS_BASE(heap, f);
+            duk_instr_t *p_start = (duk_instr_t *) DUK_HCOMPFUNC_GET_CODE_BASE(heap, f);
+            duk_instr_t *p_end = (duk_instr_t *) DUK_HCOMPFUNC_GET_CODE_END(heap, f);
+
+            duk_instr_t *p = p_start;
+            while (p < p_end) {
+                if(DUK_DEC_OP(*p) == 255)
+                    jit_revert(p);
+                p++;
+            }
+
+            tv = DUK_HCOMPFUNC_GET_CONSTS_BASE(heap, f);
 			tv_end = DUK_HCOMPFUNC_GET_CONSTS_END(heap, f);
 			while (tv < tv_end) {
 				DUK_TVAL_DECREF_NORZ(thr, tv);
