@@ -3490,7 +3490,7 @@ DUK_INTERNAL void duk_js_execute_bytecode(duk_hthread *exec_thr)
 }
 
 int neoniousGetStackFree();
-void duk_compress_stack(duk_context *ctx, duk_ret_t (*func)(duk_context *ctx, void *udata), void *udata);
+int duk_compress_stack(duk_context *ctx, duk_ret_t (*func)(duk_context *ctx, void *udata), void *udata);
 
 DUK_LOCAL DUK_NOINLINE DUK_HOT void
 duk__js_execute_bytecode_inner2(duk_hthread *entry_thread, duk_activation *entry_act);
@@ -3507,7 +3507,12 @@ duk__js_execute_bytecode_inner(duk_hthread *entry_thread,
                                duk_activation *entry_act)
 {
     if(neoniousGetStackFree() < 20000)
-        duk_compress_stack(entry_thread, call_in_compress, entry_act);
+    {
+        int res = duk_compress_stack(entry_thread, call_in_compress, entry_act);
+        if(res != DUK_EXEC_SUCCESS)
+            duk_throw(entry_thread);
+        duk_pop(entry_thread);
+    }
     else
         duk__js_execute_bytecode_inner2(entry_thread, entry_act);
 }
