@@ -77767,7 +77767,7 @@ unsigned char after_compress_failed;
 /* Inner executor, performance critical. */
 void duk__js_execute_bytecode_inner(duk_hthread *entry_thread, duk_activation *entry_act)
 {
-    if(neoniousGetStackFree() < 20000)
+    if(neoniousGetStackFree() < 35000)
     {
         duk_compress_stack(entry_thread, entry_act);
         if(after_compress_failed)
