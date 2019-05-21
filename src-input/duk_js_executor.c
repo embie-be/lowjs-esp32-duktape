@@ -3540,6 +3540,7 @@ struct JITEntry
 struct JITEntry gJITEntries[256];
 
 unsigned int jit_compile(duk_instr_t *pc);
+unsigned char gDuktapeInterruptNow;
 
 DUK_LOCAL DUK_NOINLINE DUK_HOT void
 duk__js_execute_bytecode_inner2(duk_hthread *entry_thread,
@@ -3714,12 +3715,14 @@ restart_execution:
          */
 #if defined(DUK_USE_INTERRUPT_COUNTER)
         int_ctr = thr->interrupt_counter;
-        if(DUK_LIKELY(int_ctr > 0))
+        if(DUK_LIKELY(!gDuktapeInterruptNow && int_ctr > 0))
         {
             thr->interrupt_counter = int_ctr - 1;
         }
         else
         {
+            gDuktapeInterruptNow = 0;
+
             /* Trigger at zero or below */
             duk_small_uint_t exec_int_ret;
 
