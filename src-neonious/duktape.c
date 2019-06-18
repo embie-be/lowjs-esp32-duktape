@@ -51490,7 +51490,8 @@ DUK_LOCAL void duk__decref_tvals_norz(duk_hthread *thr, duk_tval *tv, duk_idx_t 
 	}
 }
 
-void jit_revert(duk_instr_t *pc);
+// JIT crashes with express.. Would need some more thoughts and not much faster anyways jet
+//void jit_revert(duk_instr_t *pc);
 
 DUK_INTERNAL void duk_hobject_refcount_finalize_norz(duk_heap *heap, duk_hobject *h) {
 	duk_hthread *thr;
@@ -51578,16 +51579,16 @@ DUK_INTERNAL void duk_hobject_refcount_finalize_norz(duk_heap *heap, duk_hobject
 		DUK_ASSERT_HCOMPFUNC_VALID(f);
 
 		if (DUK_LIKELY(DUK_HCOMPFUNC_GET_DATA(heap, f) != NULL)) {
-            duk_instr_t *p_start = (duk_instr_t *) DUK_HCOMPFUNC_GET_CODE_BASE(heap, f);
+// JIT crashes with express.. Would need some more thoughts and not much faster anyways jet
+/*            duk_instr_t *p_start = (duk_instr_t *) DUK_HCOMPFUNC_GET_CODE_BASE(heap, f);
             duk_instr_t *p_end = (duk_instr_t *) DUK_HCOMPFUNC_GET_CODE_END(heap, f);
-
             duk_instr_t *p = p_start;
             while (p < p_end) {
                 if(DUK_DEC_OP(*p) == 255)
                     jit_revert(p);
                 p++;
             }
-
+*/
             tv = DUK_HCOMPFUNC_GET_CONSTS_BASE(heap, f);
 			tv_end = DUK_HCOMPFUNC_GET_CONSTS_END(heap, f);
 			while (tv < tv_end) {
@@ -71096,6 +71097,7 @@ DUK_LOCAL void duk__expr(duk_compiler_ctx *comp_ctx, duk_ivalue *res, duk_small_
 	DUK__RECURSION_DECREASE(comp_ctx, thr);
 }
 
+
 DUK_LOCAL void duk__exprtop(duk_compiler_ctx *comp_ctx, duk_ivalue *res, duk_small_uint_t rbp_flags) {
 	duk_hthread *thr = comp_ctx->thr;
 
@@ -72991,7 +72993,50 @@ DUK_LOCAL void duk__parse_stmt(duk_compiler_ctx *comp_ctx, duk_ivalue *res, duk_
  *  (EOF or closing brace).
  */
 
-DUK_LOCAL void duk__parse_stmts(duk_compiler_ctx *comp_ctx, duk_bool_t allow_source_elem, duk_bool_t expect_eof, duk_bool_t regexp_after) {
+
+int neoniousGetStackFree();
+
+void duk_compress_stack_expr(duk_compiler_ctx *comp_ctx, duk_bool_t allow_source_elem, duk_bool_t expect_eof, duk_bool_t regexp_after);
+void duk_after_compress_expr(duk_compiler_ctx *comp_ctx, duk_bool_t allow_source_elem, duk_bool_t expect_eof, duk_bool_t regexp_after);
+
+DUK_LOCAL void
+duk__parse_stmts2(duk_compiler_ctx *comp_ctx, duk_bool_t allow_source_elem, duk_bool_t expect_eof, duk_bool_t regexp_after);
+
+unsigned char after_compress_failed2;
+
+/* Inner executor, performance critical. */
+DUK_LOCAL void duk__parse_stmts(duk_compiler_ctx *comp_ctx, duk_bool_t allow_source_elem, duk_bool_t expect_eof, duk_bool_t regexp_after)
+{
+    if(neoniousGetStackFree() < 25000)
+    {
+        duk_compress_stack_expr(comp_ctx, allow_source_elem, expect_eof, regexp_after);
+        if(after_compress_failed2)
+            DUK_LONGJMP(comp_ctx->thr->heap->lj.jmpbuf_ptr->jb);
+    }
+    else
+        duk__parse_stmts2(comp_ctx, allow_source_elem, expect_eof, regexp_after);
+}
+
+void duk_after_compress_expr(duk_compiler_ctx *comp_ctx, duk_bool_t allow_source_elem, duk_bool_t expect_eof, duk_bool_t regexp_after)
+{
+    // Catch and rethrow after heap compression
+    duk_jmpbuf *old_jmpbuf_ptr = NULL;
+    duk_jmpbuf our_jmpbuf;
+    
+    old_jmpbuf_ptr = comp_ctx->thr->heap->lj.jmpbuf_ptr;
+    comp_ctx->thr->heap->lj.jmpbuf_ptr = &our_jmpbuf;
+    
+    if(DUK_SETJMP(our_jmpbuf.jb) == 0)
+    {
+        duk__parse_stmts2(comp_ctx, allow_source_elem, expect_eof, regexp_after);
+        after_compress_failed2 = 0;
+    }
+    else
+        after_compress_failed2 = 1;
+    comp_ctx->thr->heap->lj.jmpbuf_ptr = old_jmpbuf_ptr;
+}
+
+DUK_LOCAL void duk__parse_stmts2(duk_compiler_ctx *comp_ctx, duk_bool_t allow_source_elem, duk_bool_t expect_eof, duk_bool_t regexp_after) {
 	duk_hthread *thr = comp_ctx->thr;
 	duk_ivalue res_alloc;
 	duk_ivalue *res = &res_alloc;
@@ -74151,8 +74196,8 @@ DUK_LOCAL duk_ret_t duk__js_compile_raw(duk_hthread *thr, void *udata) {
 	return 1;
 }
 
+duk__compiler_stkstate comp_stk;    // moving here because stack is moved in mem_mgr
 DUK_INTERNAL void duk_js_compile(duk_hthread *thr, const duk_uint8_t *src_buffer, duk_size_t src_length, duk_small_uint_t flags) {
-	duk__compiler_stkstate comp_stk;
 	duk_compiler_ctx *prev_ctx;
 	duk_ret_t safe_rc;
 
@@ -78093,7 +78138,8 @@ restart_execution:
          */
         op = (duk_uint8_t)DUK_DEC_OP(ins);
 
-        if(gJITEntries[op].call && gJITEntries[DUK_DEC_OP(curr_pc[1])].call)
+// JIT crashes with express.. Would need some more thoughts and not much faster anyways jet
+/*        if(gJITEntries[op].call && gJITEntries[DUK_DEC_OP(curr_pc[1])].call)
         {
             unsigned int addr = jit_compile(curr_pc);
             if(addr)
@@ -78108,7 +78154,7 @@ restart_execution:
             curr_pc += ((unsigned int (*)(void *, void *))addr)(thr, consts);
             continue;
         }
-
+*/
         DUK_STATS_INC(thr->heap, stats_exec_opcodes);
         curr_pc++;
 
