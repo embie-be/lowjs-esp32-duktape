@@ -2,7 +2,7 @@
 
 # -DDUK_USE_EXEC_TIMEOUT_CHECK=\*\(bool\ \*\) -DDUK_USE_INTERRUPT_COUNTER required so we can stop code
 python tools/configure.py --output-directory=src-neonious --platform=neonious   \
--DDUK_USE_EXEC_TIMEOUT_CHECK=\*\(unsigned\ char\ \*\) -DDUK_USE_INTERRUPT_COUNTER -DDUK_USE_FATAL_HANDLER -DDUK_USE_DEBUGGER_SUPPORT   \
+-DDUK_USE_EXEC_TIMEOUT_CHECK=\*\(unsigned\ char\ \*\) -DDUK_USE_INTERRUPT_COUNTER -DDUK_USE_DEBUGGER_SUPPORT   \
 -DDUK_USE_DEBUGGER_PAUSE_UNCAUGHT   \
 -DDUK_USE_DEBUGGER_INSPECT   \
 -DDUK_USE_DEBUGGER_THROW_NOTIFY   \
@@ -26,5 +26,6 @@ python tools/configure.py --output-directory=src-neonious --platform=neonious   
 -DDUK_USE_SYMBOL_BUILTIN	\
 -DDUK_USE_SECTION_B \
 -DDUK_USE_FASTINT \
--DDUK_USE_DEBUG_BUFSIZE=2048
-cat ../../../jit/jit_pieces.c >> src-neonious/duktape.c
+-DDUK_USE_DEBUG_BUFSIZE=2048 \
+-DDUK_USE_CPP_EXCEPTIONS
+mv src-neonious/duktape.c src-neonious/duktape.cpp
