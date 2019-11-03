@@ -3532,14 +3532,6 @@ void duk_after_compress(duk_context *thr, void *udata)
     thr->heap->lj.jmpbuf_ptr = old_jmpbuf_ptr;
 }
 
-struct JITEntry
-{
-    char type;
-    void *call;
-};
-struct JITEntry gJITEntries[256];
-
-unsigned int jit_compile(duk_instr_t *pc);
 unsigned char gDuktapeInterruptNow;
 
 DUK_LOCAL DUK_NOINLINE DUK_HOT void
@@ -3823,22 +3815,6 @@ restart_execution:
          * will (at least usually) omit a bounds check.
          */
         op = (duk_uint8_t)DUK_DEC_OP(ins);
-
-        if(gJITEntries[op].call && gJITEntries[DUK_DEC_OP(curr_pc[1])].call)
-        {
-            unsigned int addr = jit_compile(curr_pc);
-            if(addr)
-            {
-                curr_pc += ((unsigned int (*)(void *, void *))addr)(thr, consts);
-                continue;
-            }
-        }
-        else if(op == 255)
-        {
-            unsigned int addr = 0x40000000 | DUK_DEC_ABC(ins);
-            curr_pc += ((unsigned int (*)(void *, void *))addr)(thr, consts);
-            continue;
-        }
 
         DUK_STATS_INC(thr->heap, stats_exec_opcodes);
         curr_pc++;
