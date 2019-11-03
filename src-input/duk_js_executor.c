@@ -3497,6 +3497,9 @@ void duk_after_compress(duk_context *ctx, void *udata);
 DUK_LOCAL DUK_NOINLINE DUK_HOT void
 duk__js_execute_bytecode_inner2(duk_hthread *entry_thread, duk_activation *entry_act);
 
+duk_internal_exception after_compress_failed_dukexc;
+duk_fatal_exception after_compress_failed_fatalexc;
+std::exception after_compress_failed_stdexc;
 unsigned char after_compress_failed;
 
 /* Inner executor, performance critical. */
@@ -3506,7 +3509,16 @@ void duk__js_execute_bytecode_inner(duk_hthread *entry_thread, duk_activation *e
     {
         duk_compress_stack(entry_thread, entry_act);
         if(after_compress_failed)
-            DUK_LONGJMP(entry_thread->heap->lj.jmpbuf_ptr->jb);
+        {
+            if(after_compress_failed == 1)
+		throw after_compress_failed_dukexc;
+            else if(after_compress_failed == 2)
+		throw after_compress_failed_fatalexc;
+            else if(after_compress_failed == 3)
+		throw after_compress_failed_stdexc;
+            else
+		throw std::exception();
+        }
     }
     else
         duk__js_execute_bytecode_inner2(entry_thread, entry_act);
@@ -3515,21 +3527,30 @@ void duk__js_execute_bytecode_inner(duk_hthread *entry_thread, duk_activation *e
 
 void duk_after_compress(duk_context *thr, void *udata)
 {
-    // Catch and rethrow after heap compression
-    duk_jmpbuf *old_jmpbuf_ptr = NULL;
-    duk_jmpbuf our_jmpbuf;
-    
-    old_jmpbuf_ptr = thr->heap->lj.jmpbuf_ptr;
-    thr->heap->lj.jmpbuf_ptr = &our_jmpbuf;
-    
-    if(DUK_SETJMP(our_jmpbuf.jb) == 0)
+    try
     {
         duk__js_execute_bytecode_inner2(thr, udata);
         after_compress_failed = 0;
     }
-    else
+    catch(duk_internal_exception &exc)
+    {
+        after_compress_failed_dukexc = exc;
         after_compress_failed = 1;
-    thr->heap->lj.jmpbuf_ptr = old_jmpbuf_ptr;
+    }
+    catch(duk_fatal_exception &exc)
+    {
+        after_compress_failed_fatalexc = exc;
+        after_compress_failed = 2;
+    }
+    catch(std::exception &exc)
+    {
+        after_compress_failed_stdexc = exc;
+        after_compress_failed = 3;
+    }
+    catch(...)
+    {
+        after_compress_failed = 4;
+    }
 }
 
 unsigned char gDuktapeInterruptNow;

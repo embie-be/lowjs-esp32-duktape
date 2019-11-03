@@ -1,6 +1,8 @@
 #!/bin/bash
 
 # -DDUK_USE_EXEC_TIMEOUT_CHECK=\*\(bool\ \*\) -DDUK_USE_INTERRUPT_COUNTER required so we can stop code
+
+rm -rf src-neonious
 python tools/configure.py --output-directory=src-neonious --platform=neonious   \
 -DDUK_USE_EXEC_TIMEOUT_CHECK=\*\(unsigned\ char\ \*\) -DDUK_USE_INTERRUPT_COUNTER -DDUK_USE_DEBUGGER_SUPPORT   \
 -DDUK_USE_DEBUGGER_PAUSE_UNCAUGHT   \

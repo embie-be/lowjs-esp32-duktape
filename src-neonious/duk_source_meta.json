@@ -530,173 +530,173 @@
         }, 
         {
             "original_line": 1, 
-            "combined_line": 52304, 
+            "combined_line": 52292, 
             "original_file": "duk_heap_stringcache.c"
         }, 
         {
             "original_line": 1, 
-            "combined_line": 52613, 
+            "combined_line": 52601, 
             "original_file": "duk_heap_stringtable.c"
         }, 
         {
             "original_line": 1, 
-            "combined_line": 53662, 
+            "combined_line": 53650, 
             "original_file": "duk_hobject_alloc.c"
         }, 
         {
             "original_line": 1, 
-            "combined_line": 53933, 
+            "combined_line": 53921, 
             "original_file": "duk_hobject_enum.c"
         }, 
         {
             "original_line": 1, 
-            "combined_line": 54641, 
+            "combined_line": 54629, 
             "original_file": "duk_hobject_misc.c"
         }, 
         {
             "original_line": 1, 
-            "combined_line": 54694, 
+            "combined_line": 54682, 
             "original_file": "duk_hobject_pc2line.c"
         }, 
         {
             "original_line": 1, 
-            "combined_line": 54938, 
+            "combined_line": 54926, 
             "original_file": "duk_hobject_props.c"
         }, 
         {
             "original_line": 1, 
-            "combined_line": 61054, 
+            "combined_line": 61042, 
             "original_file": "duk_hstring_misc.c"
         }, 
         {
             "original_line": 1, 
-            "combined_line": 61250, 
+            "combined_line": 61238, 
             "original_file": "duk_hthread_alloc.c"
         }, 
         {
             "original_line": 1, 
-            "combined_line": 61309, 
+            "combined_line": 61297, 
             "original_file": "duk_hthread_builtins.c"
         }, 
         {
             "original_line": 1, 
-            "combined_line": 62194, 
+            "combined_line": 62182, 
             "original_file": "duk_hthread_misc.c"
         }, 
         {
             "original_line": 1, 
-            "combined_line": 62291, 
+            "combined_line": 62279, 
             "original_file": "duk_hthread_stacks.c"
         }, 
         {
             "original_line": 1, 
-            "combined_line": 62773, 
+            "combined_line": 62761, 
             "original_file": "duk_js_arith.c"
         }, 
         {
             "original_line": 1, 
-            "combined_line": 62910, 
+            "combined_line": 62898, 
             "original_file": "duk_js_call.c"
         }, 
         {
             "original_line": 1, 
-            "combined_line": 66163, 
+            "combined_line": 66151, 
             "original_file": "duk_js_compiler.c"
         }, 
         {
             "original_line": 1, 
-            "combined_line": 74270, 
+            "combined_line": 74258, 
             "original_file": "duk_js_executor.c"
         }, 
         {
             "original_line": 1, 
-            "combined_line": 80411, 
+            "combined_line": 80396, 
             "original_file": "duk_js_ops.c"
         }, 
         {
             "original_line": 1, 
-            "combined_line": 81868, 
+            "combined_line": 81853, 
             "original_file": "duk_js_var.c"
         }, 
         {
             "original_line": 1, 
-            "combined_line": 83624, 
+            "combined_line": 83609, 
             "original_file": "duk_lexer.c"
         }, 
         {
             "original_line": 1, 
-            "combined_line": 86085, 
+            "combined_line": 86070, 
             "original_file": "duk_numconv.c"
         }, 
         {
             "original_line": 1, 
-            "combined_line": 88361, 
+            "combined_line": 88346, 
             "original_file": "duk_regexp_compiler.c"
         }, 
         {
             "original_line": 1, 
-            "combined_line": 89651, 
+            "combined_line": 89636, 
             "original_file": "duk_regexp_executor.c"
         }, 
         {
             "original_line": 1, 
-            "combined_line": 90677, 
+            "combined_line": 90662, 
             "original_file": "duk_selftest.c"
         }, 
         {
             "original_line": 2, 
-            "combined_line": 91322, 
+            "combined_line": 91307, 
             "original_file": "duk_tval.c"
         }, 
         {
             "original_line": 1, 
-            "combined_line": 91463, 
+            "combined_line": 91448, 
             "original_file": "duk_unicode_tables.c"
         }, 
         {
             "original_line": 1, 
-            "combined_line": 97629, 
+            "combined_line": 97614, 
             "original_file": "duk_util_bitdecoder.c"
         }, 
         {
             "original_line": 1, 
-            "combined_line": 97795, 
+            "combined_line": 97780, 
             "original_file": "duk_util_bitencoder.c"
         }, 
         {
             "original_line": 1, 
-            "combined_line": 97838, 
+            "combined_line": 97823, 
             "original_file": "duk_util_bufwriter.c"
         }, 
         {
             "original_line": 1, 
-            "combined_line": 98197, 
+            "combined_line": 98182, 
             "original_file": "duk_util_cast.c"
         }, 
         {
             "original_line": 1, 
-            "combined_line": 98365, 
+            "combined_line": 98350, 
             "original_file": "duk_util_double.c"
         }, 
         {
             "original_line": 1, 
-            "combined_line": 98599, 
+            "combined_line": 98584, 
             "original_file": "duk_util_hashbytes.c"
         }, 
         {
             "original_line": 1, 
-            "combined_line": 98660, 
+            "combined_line": 98645, 
             "original_file": "duk_util_memory.c"
         }, 
         {
             "original_line": 1, 
-            "combined_line": 98696, 
+            "combined_line": 98681, 
             "original_file": "duk_util_tinyrandom.c"
         }
     ], 
     "duk_version": 20399, 
     "git_branch": "HEAD", 
-    "git_commit": "a52fa635779c1b76c5d7630df61067f0fd682931", 
+    "git_commit": "e4ffe6d593121743b5b5db75dfd2aec89be841a5", 
     "builtin_strings_info": [
         {
             "plain": "Undefined", 
@@ -1697,7 +1697,7 @@
         "c3RhdGlj", 
         "eWllbGQ="
     ], 
-    "git_describe": "v2.3.0-63-ga52fa635-dirty", 
+    "git_describe": "v2.3.0-67-ge4ffe6d5-dirty", 
     "builtin_strings": [
         "Undefined", 
         "Null", 
