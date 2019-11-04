@@ -6829,6 +6829,8 @@ DUK_LOCAL void duk__parse_stmt(duk_compiler_ctx *comp_ctx, duk_ivalue *res, duk_
  *  (EOF or closing brace).
  */
 
+extern "C" int neoniousGetStackFree();
+
 DUK_LOCAL void duk__parse_stmts(duk_compiler_ctx *comp_ctx, duk_bool_t allow_source_elem, duk_bool_t expect_eof, duk_bool_t regexp_after) {
 	duk_hthread *thr = comp_ctx->thr;
 	duk_ivalue res_alloc;
@@ -6836,6 +6838,8 @@ DUK_LOCAL void duk__parse_stmts(duk_compiler_ctx *comp_ctx, duk_bool_t allow_sou
 
 	/* Setup state.  Initial ivalue is 'undefined'. */
 
+    if(neoniousGetStackFree() < 25000)
+        duk_generic_error(thr, "stack is full");
 	duk_require_stack(thr, DUK__PARSE_STATEMENTS_SLOTS);
 
 	/* XXX: 'res' setup can be moved to function body level; in fact, two 'res'

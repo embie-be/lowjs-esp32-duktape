@@ -3489,76 +3489,13 @@ DUK_INTERNAL void duk_js_execute_bytecode(duk_hthread *exec_thr)
     DUK_WO_NORETURN(return;);
 }
 
-int neoniousGetStackFree();
-
-void duk_compress_stack(duk_context *ctx, void *udata);
-void duk_after_compress(duk_context *ctx, void *udata);
-
-DUK_LOCAL DUK_NOINLINE DUK_HOT void
-duk__js_execute_bytecode_inner2(duk_hthread *entry_thread, duk_activation *entry_act);
-
-duk_internal_exception after_compress_failed_dukexc;
-duk_fatal_exception after_compress_failed_fatalexc;
-std::exception after_compress_failed_stdexc;
-unsigned char after_compress_failed;
-
-/* Inner executor, performance critical. */
-void duk__js_execute_bytecode_inner(duk_hthread *entry_thread, duk_activation *entry_act)
-{
-    if(neoniousGetStackFree() < 25000)
-    {
-        duk_compress_stack(entry_thread, entry_act);
-        if(after_compress_failed)
-        {
-            if(after_compress_failed == 1)
-		throw after_compress_failed_dukexc;
-            else if(after_compress_failed == 2)
-		throw after_compress_failed_fatalexc;
-            else if(after_compress_failed == 3)
-		throw after_compress_failed_stdexc;
-            else
-		throw std::exception();
-        }
-    }
-    else
-        duk__js_execute_bytecode_inner2(entry_thread, entry_act);
-}
-
-
-void duk_after_compress(duk_context *thr, void *udata)
-{
-    try
-    {
-        duk__js_execute_bytecode_inner2(thr, udata);
-        after_compress_failed = 0;
-    }
-    catch(duk_internal_exception &exc)
-    {
-        after_compress_failed_dukexc = exc;
-        after_compress_failed = 1;
-    }
-    catch(duk_fatal_exception &exc)
-    {
-        after_compress_failed_fatalexc = exc;
-        after_compress_failed = 2;
-    }
-    catch(std::exception &exc)
-    {
-        after_compress_failed_stdexc = exc;
-        after_compress_failed = 3;
-    }
-    catch(...)
-    {
-        after_compress_failed = 4;
-    }
-}
 
 unsigned char gDuktapeInterruptNow;
 
 DUK_LOCAL DUK_NOINLINE DUK_HOT void
-duk__js_execute_bytecode_inner2(duk_hthread *entry_thread,
+duk__js_execute_bytecode_inner(duk_hthread *entry_thread,
                                duk_activation *entry_act)
-{
+{    
     /* Current PC, accessed by other functions through thr->ptr_to_curr_pc.
      * Critical for performance.  It would be safest to make this volatile,
      * but that eliminates performance benefits; aliasing guarantees
@@ -3648,6 +3585,9 @@ restart_execution:
      * fine for this, so using 'entry_thread' is just to silence warnings.
      */
     thr = entry_thread->heap->curr_thread;
+    if(neoniousGetStackFree() < 25000)
+        duk_generic_error(thr, "stack is full");
+
     DUK_ASSERT(thr != NULL);
     DUK_ASSERT(thr->callstack_top >= 1);
     DUK_ASSERT(thr->callstack_curr != NULL);
