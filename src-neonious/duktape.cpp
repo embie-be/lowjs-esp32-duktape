@@ -15962,8 +15962,6 @@ DUK_EXTERNAL void duk_debugger_detach(duk_hthread *thr)
 	duk_debug_do_detach(thr->heap);
 }
 
-void code_watchdog_event_loop();
-
 DUK_EXTERNAL void duk_debugger_cooperate(duk_hthread *thr)
 {
 	duk_bool_t processed_messages;
@@ -15971,7 +15969,6 @@ DUK_EXTERNAL void duk_debugger_cooperate(duk_hthread *thr)
 	DUK_ASSERT_API_ENTRY(thr);
 	DUK_ASSERT(thr->heap != NULL);
 
-    code_watchdog_event_loop();
     if(!duk_debug_is_attached(thr->heap))
     {
 		return;
