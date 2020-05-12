@@ -6,7 +6,7 @@
  *  comments.  Other parts of the header are Duktape internal and related to
  *  e.g. platform/compiler/feature detection.
  *
- *  Git commit b80105b966679cfeecc6c6cbb89f27a0ce98e8d1 (v2.5.0-51-gb80105b9-dirty).
+ *  Git commit 068131a2314cd4f26db873bc48d21279b65a860a (v2.3.0-495-g068131a2-dirty).
  *  Git branch HEAD.
  *
  *  See Duktape AUTHORS.rst and LICENSE.txt for copyright and
@@ -21,7 +21,7 @@
  *  
  *  (http://opensource.org/licenses/MIT)
  *  
- *  Copyright (c) 2013-2019 by Duktape authors (see AUTHORS.rst)
+ *  Copyright (c) 2013-2020 by Duktape authors (see AUTHORS.rst)
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -110,6 +110,9 @@
  *  * Luis de Bethencourt (https://github.com/luisbg)
  *  * Ian Whyman (https://github.com/v00d00)
  *  * Rick Sayre (https://github.com/whorfin)
+ *  * Craig Leres (https://github.com/leres)
+ *  * Maurici Abad (https://github.com/mauriciabad)
+ *  * Nancy Li (https://github.com/NancyLi1013)
  *  
  *  Other contributions
  *  ===================
@@ -183,8 +186,8 @@
  * which Duktape snapshot was used.  Not available in the ECMAScript
  * environment.
  */
-#define DUK_GIT_COMMIT                    "b80105b966679cfeecc6c6cbb89f27a0ce98e8d1"
-#define DUK_GIT_DESCRIBE                  "v2.5.0-51-gb80105b9-dirty"
+#define DUK_GIT_COMMIT                    "068131a2314cd4f26db873bc48d21279b65a860a"
+#define DUK_GIT_DESCRIBE                  "v2.3.0-495-g068131a2-dirty"
 #define DUK_GIT_BRANCH                    "HEAD"
 
 /* External duk_config.h provides platform/compiler/OS dependent
