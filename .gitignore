@@ -40,7 +40,6 @@
 /duktape-releases/
 /doc/*.pdf
 /UglifyJS/
-/UglifyJS2/
 /closure-compiler/
 /linenoise/
 /underscore/
@@ -77,6 +76,7 @@
 /massif-*.out
 /ms_print.*
 /dukweb.js
+/dukweb.wasm
 /debugger/jquery-ui-1.11.2.zip
 /debugger/jquery-ui-1.11.2/
 /debugger/node_modules/
